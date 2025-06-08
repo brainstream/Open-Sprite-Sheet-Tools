@@ -19,6 +19,7 @@
 #pragma once
 
 #include "ui_SpriteSheetSplitterWidget.h"
+#include <functional>
 
 class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
 {
@@ -34,9 +35,11 @@ signals:
 private slots:
     void openTexture();
     void updatePreview();
+    void saveSprites();
 
 private:
     void loadImage(const QString & _path);
+    bool forEachRect(std::function<void(int, int, int, int)> _cb) const;
 
 private:
     QString m_open_image_dialog_filter;

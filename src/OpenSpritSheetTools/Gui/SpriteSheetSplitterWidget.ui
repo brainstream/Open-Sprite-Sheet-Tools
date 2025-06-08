@@ -356,6 +356,33 @@
             </property>
            </spacer>
           </item>
+          <item row="13" column="0" colspan="2">
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <item>
+             <spacer name="mp_spacer_7">
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="mp_btn_save_sprites">
+              <property name="text">
+               <string>Save sprites...</string>
+              </property>
+              <property name="icon">
+               <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="mp_tab_atlas">
@@ -455,6 +482,7 @@
   <tabstop>mp_spin_vspacing</tabstop>
   <tabstop>mp_spin_margin_top</tabstop>
   <tabstop>mp_spin_margin_left</tabstop>
+  <tabstop>mp_btn_save_sprites</tabstop>
   <tabstop>mp_edit_data_file</tabstop>
   <tabstop>mp_btn_brows_data_file</tabstop>
   <tabstop>mp_combo_format</tabstop>
@@ -605,9 +633,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>mp_btn_save_sprites</sender>
+   <signal>clicked()</signal>
+   <receiver>SpriteSheetSplitterWidget</receiver>
+   <slot>saveSprites()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1448</x>
+     <y>871</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>767</x>
+     <y>457</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>openTexture()</slot>
   <slot>updatePreview()</slot>
+  <slot>saveSprites()</slot>
  </slots>
 </ui>

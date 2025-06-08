@@ -1,9 +1,3 @@
-#include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
-#include <OpenSpritSheetTools/Settings.h>
-#include <QGraphicsPixmapItem>
-#include <QGraphicsScene>
-#include <QImageReader>
-#include <QFileDialog>
 /**********************************************************************************************************
  * Copyright © 2025 Sergey Smolyannikov aka brainstream                                                   *
  *                                                                                                        *
@@ -22,6 +16,12 @@
  *                                                                                                        *
  **********************************************************************************************************/
 
+#include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
+#include <OpenSpritSheetTools/Settings.h>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsScene>
+#include <QImageReader>
+#include <QFileDialog>
 #include <QMessageBox>
 
 SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
@@ -35,6 +35,7 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
         .arg(QImageReader().supportedImageFormats().join(" *."));
     setupUi(this);
     mp_preview->setScene(new QGraphicsScene(mp_preview));
+    mp_btn_save_sprites->setEnabled(false);
 }
 
 SpriteSheetSplitterWidget::~SpriteSheetSplitterWidget()
@@ -85,6 +86,14 @@ void SpriteSheetSplitterWidget::updatePreview()
     scene->clear();
     QGraphicsPixmapItem * pixmap_item = scene->addPixmap(*mp_pixmap);
     scene->addRect({pixmap_item->pos(), mp_pixmap->size()}, m_sheet_pen);
+    bool is_valid = forEachRect([this, scene](int __x, int __y, int __width, int __height) {
+        scene->addRect(__x, __y, __width, __height, m_sprite_pen, m_sprite_brush);
+    });
+    mp_btn_save_sprites->setEnabled(is_valid);
+}
+
+bool SpriteSheetSplitterWidget::forEachRect(std::function<void(int, int, int, int)> _cb) const
+{
     const int rows = mp_spin_rows->value();
     const int columns = mp_spin_columns->value();
     const int sprite_width = mp_spin_sprite_width->value();
@@ -99,7 +108,7 @@ void SpriteSheetSplitterWidget::updatePreview()
     if(vertical_spacing < 0) vertical_spacing = 0;
     if(rows <= 0 || columns <= 0 || sprite_width <= 0 || sprite_height <= 0)
     {
-        return;
+        return false;
     }
     for(quint32 row = 0; row < rows; ++row)
     {
@@ -107,7 +116,31 @@ void SpriteSheetSplitterWidget::updatePreview()
         for(quint32 col = 0; col < columns; ++col)
         {
             int x = margin_left + col * sprite_width + col * horizontal_spacing;
-            scene->addRect(x, y, sprite_width, sprite_height, m_sprite_pen, m_sprite_brush);
+            _cb(x, y, sprite_width, sprite_height);
         }
     }
+    return true;
+}
+
+void SpriteSheetSplitterWidget::saveSprites()
+{
+    QSettings settings;
+    QString last_dir = settings.value(gc_settings_key_split_dir, gc_settings_key_sheet_dir).toString();
+    QString dir_path = QFileDialog::getExistingDirectory(this, QString(), last_dir);
+    if(dir_path.isEmpty())
+    {
+        return;
+    }
+    QDir dir(dir_path);
+    settings.setValue(gc_settings_key_split_dir, dir.absolutePath());
+    QFileInfo fi(mp_edit_texture_file->text());
+    QString format = dir.filePath(QString("%1_%2.png").arg(fi.baseName()).arg("%1"));
+    int idx = 1;
+    forEachRect([this, &idx, &format](int __x, int __y, int __width, int __height) {
+        QImage img(__width, __height, QImage::Format_ARGB32);
+        img.fill(0);
+        QPainter painter(&img);
+        painter.drawPixmap(0, 0, *mp_pixmap, __x, __y, __width, __height);
+        img.save(format.arg(idx++, 4, 10, QChar('0')));
+    });
 }
