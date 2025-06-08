@@ -1,0 +1,95 @@
+#include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
+#include <OpenSpritSheetTools/Settings.h>
+#include <QGraphicsPixmapItem>
+#include <QGraphicsScene>
+#include <QImageReader>
+#include <QFileDialog>
+#include <QMessageBox>
+
+SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
+    QWidget(parent),
+    mp_pixmap(new QPixmap()),
+    m_sheet_pen(QColor(0, 255, 0, 80)),
+    m_sprite_pen(QColor(255, 0, 0, 80)),
+    m_sprite_brush(QColor(255, 0, 0, 50))
+{
+    m_open_image_dialog_filter = QString(tr("All supported image formats (*.%1)"))
+        .arg(QImageReader().supportedImageFormats().join(" *."));
+    setupUi(this);
+    mp_preview->setScene(new QGraphicsScene(mp_preview));
+}
+
+SpriteSheetSplitterWidget::~SpriteSheetSplitterWidget()
+{
+    delete mp_pixmap;
+}
+
+void SpriteSheetSplitterWidget::openTexture()
+{
+    QSettings settings;
+    QString last_dir = settings.value(gc_settings_key_sheet_dir).toString();
+    QString filename = QFileDialog::getOpenFileName(this, tr("Open a Sprite Sheet"), last_dir, m_open_image_dialog_filter);
+    if(!filename.isEmpty())
+    {
+        QFileInfo file_info(filename);
+        settings.setValue(gc_settings_key_sheet_dir, file_info.absolutePath());
+        loadImage(filename);
+    }
+}
+
+void SpriteSheetSplitterWidget::loadImage(const QString & _path)
+{
+    if(mp_pixmap->load(_path))
+    {
+        mp_edit_texture_size->setText(QString("%1x%2").arg(mp_pixmap->width()).arg(mp_pixmap->height()));
+        mp_edit_texture_file->setText(_path);
+        mp_spin_rows->setValue(0);
+        mp_spin_columns->setValue(0);
+        mp_spin_sprite_width->setValue(0);
+        mp_spin_sprite_height->setValue(0);
+        mp_spin_vspacing->setValue(0);
+        mp_spin_hspacing->setValue(0);
+        mp_spin_margin_left->setValue(0);
+        mp_spin_margin_top->setValue(0);
+        mp_tabs_source->setEnabled(true);
+        updatePreview();
+        emit sheetLoaded(_path);
+    }
+    else
+    {
+        QMessageBox::warning(this, nullptr, tr("Unable to load texture"));
+    }
+}
+
+void SpriteSheetSplitterWidget::updatePreview()
+{
+    QGraphicsScene * scene = mp_preview->scene();
+    scene->clear();
+    QGraphicsPixmapItem * pixmap_item = scene->addPixmap(*mp_pixmap);
+    scene->addRect({pixmap_item->pos(), mp_pixmap->size()}, m_sheet_pen);
+    const int rows = mp_spin_rows->value();
+    const int columns = mp_spin_columns->value();
+    const int sprite_width = mp_spin_sprite_width->value();
+    const int sprite_height = mp_spin_sprite_height->value();
+    int margin_left = mp_spin_margin_left->value();
+    int margin_top = mp_spin_margin_top->value();
+    int horizontal_spacing = mp_spin_hspacing->value();
+    int vertical_spacing = mp_spin_vspacing->value();
+    if(margin_left < 0) margin_left = 0;
+    if(margin_top < 0) margin_top = 0;
+    if(horizontal_spacing < 0) horizontal_spacing = 0;
+    if(vertical_spacing < 0) vertical_spacing = 0;
+    if(rows <= 0 || columns <= 0 || sprite_width <= 0 || sprite_height <= 0)
+    {
+        return;
+    }
+    for(quint32 row = 0; row < rows; ++row)
+    {
+        int y = margin_top + row *sprite_height + row * vertical_spacing;
+        for(quint32 col = 0; col < columns; ++col)
+        {
+            int x = margin_left + col * sprite_width + col * horizontal_spacing;
+            scene->addRect(x, y, sprite_width, sprite_height, m_sprite_pen, m_sprite_brush);
+        }
+    }
+}

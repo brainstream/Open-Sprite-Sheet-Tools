@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1370</width>
+    <height>854</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="../Resources/Resources.qrc">
+    <normaloff>:/image/icon</normaloff>:/image/icon</iconset>
+  </property>
+  <widget class="QWidget" name="mp_central_widget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QTabWidget" name="mp_tabs">
+      <property name="tabsClosable">
+       <bool>true</bool>
+      </property>
+      <property name="movable">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QToolBar" name="mp_toolbar">
+   <property name="windowTitle">
+    <string>Main Tool Bar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
+   </property>
+   <property name="floatable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="mp_action_split_sheet"/>
+  </widget>
+  <action name="mp_action_split_sheet">
+   <property name="icon">
+    <iconset theme="QIcon::ThemeIcon::EditCut"/>
+   </property>
+   <property name="text">
+    <string>Split Sheet...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../Resources/Resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>mp_action_split_sheet</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>showSheetSplitter()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>684</x>
+     <y>426</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mp_tabs</sender>
+   <signal>tabCloseRequested(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>closeTab(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>684</x>
+     <y>454</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>684</x>
+     <y>426</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>showSheetSplitter()</slot>
+  <slot>closeTab(int)</slot>
+ </slots>
+</ui>
