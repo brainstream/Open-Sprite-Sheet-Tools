@@ -343,46 +343,6 @@
             </property>
            </widget>
           </item>
-          <item row="12" column="0">
-           <spacer name="m_spacer_5">
-            <property name="orientation">
-             <enum>Qt::Orientation::Vertical</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>20</width>
-              <height>40</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item row="13" column="0" colspan="2">
-           <layout class="QHBoxLayout" name="horizontalLayout_2">
-            <item>
-             <spacer name="m_spacer_7">
-              <property name="orientation">
-               <enum>Qt::Orientation::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="m_btn_save_sprites">
-              <property name="text">
-               <string>Save sprites...</string>
-              </property>
-              <property name="icon">
-               <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="m_tab_atlas">
@@ -463,6 +423,43 @@
         </property>
        </widget>
       </item>
+      <item row="3" column="0" colspan="2">
+       <layout class="QHBoxLayout" name="m_layout_3">
+        <item>
+         <widget class="QPushButton" name="m_btn_export_to_atlas">
+          <property name="text">
+           <string>Export to atlas...</string>
+          </property>
+          <property name="icon">
+           <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="m_spacer_7">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="m_btn_export_sprites">
+          <property name="text">
+           <string>Export sprites...</string>
+          </property>
+          <property name="icon">
+           <iconset theme="QIcon::ThemeIcon::DocumentSave"/>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
      </layout>
     </widget>
    </item>
@@ -482,48 +479,12 @@
   <tabstop>m_spin_vspacing</tabstop>
   <tabstop>m_spin_margin_top</tabstop>
   <tabstop>m_spin_margin_left</tabstop>
-  <tabstop>m_btn_save_sprites</tabstop>
+  <tabstop>m_btn_export_to_atlas</tabstop>
+  <tabstop>m_btn_export_sprites</tabstop>
   <tabstop>m_edit_data_file</tabstop>
   <tabstop>m_btn_brows_data_file</tabstop>
   <tabstop>m_combo_format</tabstop>
  </tabstops>
  <resources/>
- <connections>
-  <connection>
-   <sender>m_btn_browse_texture_file</sender>
-   <signal>clicked()</signal>
-   <receiver>SpriteSheetSplitterWidget</receiver>
-   <slot>openTexture()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1503</x>
-     <y>32</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>767</x>
-     <y>457</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_btn_save_sprites</sender>
-   <signal>clicked()</signal>
-   <receiver>SpriteSheetSplitterWidget</receiver>
-   <slot>saveSprites()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1448</x>
-     <y>871</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>767</x>
-     <y>457</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
- <slots>
-  <slot>openTexture()</slot>
-  <slot>saveSprites()</slot>
- </slots>
+ <connections/>
 </ui>

@@ -18,39 +18,61 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
-#include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
+#include <QString>
+#include <QObject>
+#include <filesystem>
 
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+class Exception
 {
-    Q_OBJECT
+public:
+    explicit Exception(const QString & _message) :
+        m_message(_message)
+    {
+    }
+
+    virtual ~Exception() { }
+
+    const QString & message() const
+    {
+        return m_message;
+    }
+
+private:
+    const QString m_message;
+};
+
+class FileOpenException : public Exception
+{
+public:
+    enum Mode
+    {
+        Read,
+        Write
+    };
 
 public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
+    FileOpenException(const QString & _filename, Mode _mode) :
+        Exception(getMessage(_filename, _mode))
+    {
+    }
 
-signals:
-    void sheetLoaded(const QString & _filename);
-
-private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
+    FileOpenException(const std::filesystem::path & _filename, Mode _mode) :
+        Exception(getMessage(_filename.string(), _mode))
+    {
+    }
 
 private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
-
-private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
+    template<typename Path>
+    QString getMessage(const Path & _filename, Mode _mode)
+    {
+        switch(_mode)
+        {
+        case Read:
+            return QObject::tr("Unable to open file \"%1\" for reading").arg(_filename);
+        case Write:
+            return QObject::tr("Unable to open file \"%1\" for writing").arg(_filename);
+        default:
+            return QString();
+        }
+    }
 };

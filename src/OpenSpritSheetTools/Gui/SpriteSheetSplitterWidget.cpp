@@ -17,7 +17,9 @@
  **********************************************************************************************************/
 
 #include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
+#include <OpenSpritSheetTools/AtlasExporters/DefaultAtlasExporter.h>
 #include <OpenSpritSheetTools/Settings.h>
+#include <OpenSpritSheetTools/Exception.h>
 #include <QGraphicsPixmapItem>
 #include <QGraphicsScene>
 #include <QImageReader>
@@ -35,8 +37,12 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
         .arg(QImageReader().supportedImageFormats().join(" *."));
     setupUi(this);
     m_preview->setScene(new QGraphicsScene(m_preview));
-    m_btn_save_sprites->setEnabled(false);
+    setExportControlsEnabled(false);
+
     m_grid_splitter = new GridSplitter(this);
+    connect(m_btn_browse_texture_file, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::openTexture);
+    connect(m_btn_export_sprites, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::exportSprites);
+    connect(m_btn_export_to_atlas, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::exportToAtlas);
     connect(m_spin_rows, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setRowCount);
     connect(m_spin_columns, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setColumnCount);
     connect(m_spin_sprite_width, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setSpriteWidth);
@@ -45,7 +51,26 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     connect(m_spin_margin_top, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setMarginTop);
     connect(m_spin_hspacing, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setHorizontalSpacing);
     connect(m_spin_vspacing, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setVerticalSpacing);
-    connect(m_grid_splitter, &Splitter::framesChanged, this, &SpriteSheetSplitterWidget::updatePreview);
+    connect(m_grid_splitter, &Splitter::framesChanged, this, &SpriteSheetSplitterWidget::syncWithSplitter);
+
+    m_atlas_splitter = new AtlasSplitter(this);
+
+    m_current_splitter = m_grid_splitter;
+
+    connect(m_tabs_source, &QTabWidget::currentChanged, this, [this](int __index) {
+        switch(__index)
+        {
+        case 0:
+            m_current_splitter = m_grid_splitter;
+            break;
+        case 1:
+            m_current_splitter = m_atlas_splitter;
+            break;
+        default:
+            return;
+        }
+        syncWithSplitter();
+    });
 }
 
 SpriteSheetSplitterWidget::~SpriteSheetSplitterWidget()
@@ -57,7 +82,11 @@ void SpriteSheetSplitterWidget::openTexture()
 {
     QSettings settings;
     QString last_dir = settings.value(gc_settings_key_sheet_dir).toString();
-    QString filename = QFileDialog::getOpenFileName(this, tr("Open a Sprite Sheet"), last_dir, m_open_image_dialog_filter);
+    QString filename = QFileDialog::getOpenFileName(
+        this,
+        tr("Open a Sprite Sheet"),
+        last_dir,
+        m_open_image_dialog_filter);
     if(!filename.isEmpty())
     {
         QFileInfo file_info(filename);
@@ -81,28 +110,34 @@ void SpriteSheetSplitterWidget::loadImage(const QString & _path)
         m_spin_margin_left->setValue(0);
         m_spin_margin_top->setValue(0);
         m_tabs_source->setEnabled(true);
-        updatePreview();
+        syncWithSplitter();
         emit sheetLoaded(_path);
     }
     else
     {
-        QMessageBox::warning(this, nullptr, tr("Unable to load texture"));
+        QMessageBox::critical(this, nullptr, tr("Unable to load texture"));
     }
 }
 
-void SpriteSheetSplitterWidget::updatePreview()
+void SpriteSheetSplitterWidget::setExportControlsEnabled(bool _enabled)
+{
+    m_btn_export_sprites->setEnabled(_enabled);
+    m_btn_export_to_atlas->setEnabled(_enabled);
+}
+
+void SpriteSheetSplitterWidget::syncWithSplitter()
 {
     QGraphicsScene * scene = m_preview->scene();
     scene->clear();
     QGraphicsPixmapItem * pixmap_item = scene->addPixmap(*m_pixmap);
     scene->addRect({pixmap_item->pos(), m_pixmap->size()}, m_sheet_pen);
-    bool is_valid = m_grid_splitter->forEachFrame([this, scene](int __x, int __y, int __width, int __height) {
+    bool is_valid = m_current_splitter->forEachFrame([this, scene](int __x, int __y, int __width, int __height) {
         scene->addRect(__x, __y, __width, __height, m_sprite_pen, m_sprite_brush);
     });
-    m_btn_save_sprites->setEnabled(is_valid);
+    setExportControlsEnabled(is_valid);
 }
 
-void SpriteSheetSplitterWidget::saveSprites()
+void SpriteSheetSplitterWidget::exportSprites()
 {
     QSettings settings;
     QString last_dir = settings.value(gc_settings_key_split_dir, gc_settings_key_sheet_dir).toString();
@@ -116,11 +151,43 @@ void SpriteSheetSplitterWidget::saveSprites()
     QFileInfo fi(m_edit_texture_file->text());
     QString format = dir.filePath(QString("%1_%2.png").arg(fi.baseName()).arg("%1"));
     int idx = 1;
-    m_grid_splitter->forEachFrame([this, &idx, &format](int __x, int __y, int __width, int __height) {
+    m_current_splitter->forEachFrame([this, &idx, &format](int __x, int __y, int __width, int __height) {
         QImage img(__width, __height, QImage::Format_ARGB32);
         img.fill(0);
         QPainter painter(&img);
         painter.drawPixmap(0, 0, *m_pixmap, __x, __y, __width, __height);
         img.save(format.arg(idx++, 4, 10, QChar('0')));
     });
+}
+
+void SpriteSheetSplitterWidget::exportToAtlas()
+{
+    DefaultAtlasExporter exporter;
+    QFileInfo texture_file_info(m_edit_texture_file->text());
+    QString default_filename = m_last_atlas_export_file;
+    if(default_filename.isEmpty())
+    {
+        default_filename = QDir(texture_file_info.absolutePath())
+            .absoluteFilePath(QString("%1.%2").arg(texture_file_info.baseName(), exporter.fileExtenstion()));
+    }
+    QString filename = QFileDialog::getSaveFileName(
+        this,
+        QString(),
+        default_filename,
+        QString(tr("Atlas (%1) (*.%1)")).arg(exporter.fileExtenstion()));
+    if(!filename.isEmpty())
+    {
+        m_last_atlas_export_file = filename;
+        try
+        {
+            exporter.exportToAtlas(
+                *m_current_splitter,
+                texture_file_info.absoluteFilePath().toStdString(),
+                filename.toStdString());
+        }
+        catch(const Exception & _exception)
+        {
+            QMessageBox::critical(this, nullptr, _exception.message());
+        }
+    }
 }

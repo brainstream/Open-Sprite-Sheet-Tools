@@ -27,13 +27,14 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Xml)
 
 set(SRC_DIR ${CMAKE_CURRENT_LIST_DIR}/src)
 set(OSST_SRC_DIR ${SRC_DIR}/OpenSpritSheetTools)
 
 set(PROJECT_SOURCES
   ${OSST_SRC_DIR}/Main.cpp
+  ${OSST_SRC_DIR}/Exception.h
   ${OSST_SRC_DIR}/Gui/MainWindow.cpp
   ${OSST_SRC_DIR}/Gui/MainWindow.h
   ${OSST_SRC_DIR}/Gui/MainWindow.ui
@@ -46,6 +47,11 @@ set(PROJECT_SOURCES
   ${OSST_SRC_DIR}/Splitters/Splitter.h
   ${OSST_SRC_DIR}/Splitters/GridSplitter.h
   ${OSST_SRC_DIR}/Splitters/GridSplitter.cpp
+  ${OSST_SRC_DIR}/Splitters/AtlasSplitter.h
+  ${OSST_SRC_DIR}/Splitters/AtlasSplitter.cpp
+  ${OSST_SRC_DIR}/AtlasExporters/AtlasExporter.h
+  ${OSST_SRC_DIR}/AtlasExporters/DefaultAtlasExporter.h
+  ${OSST_SRC_DIR}/AtlasExporters/DefaultAtlasExporter.cpp
 )
 
 set(OSST open-sprite-sheet-tools)
@@ -55,7 +61,7 @@ qt_add_executable(${OSST}
     ${PROJECT_SOURCES}
 )
 
-target_link_libraries(${OSST} PRIVATE Qt6::Widgets)
+target_link_libraries(${OSST} PRIVATE Qt6::Widgets Qt6::Xml)
 
 target_include_directories(${OSST}
   PRIVATE ${SRC_DIR}

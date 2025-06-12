@@ -18,39 +18,20 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
-#include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
+#include <OpenSpritSheetTools/Splitters/Splitter.h>
+#include <filesystem>
+#include <QFileInfo>
 
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+class AtlasExporter
 {
-    Q_OBJECT
+    Q_DISABLE_COPY_MOVE(AtlasExporter)
 
 public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
-
-signals:
-    void sheetLoaded(const QString & _filename);
-
-private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
-
-private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
-
-private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
+    AtlasExporter() { }
+    virtual ~AtlasExporter() { }
+    virtual void exportToAtlas(
+        const Splitter & _splitter,
+        const std::filesystem::path & _texture_file,
+        const std::filesystem::path & _file) = 0;
+    virtual QString fileExtenstion() const = 0;
 };

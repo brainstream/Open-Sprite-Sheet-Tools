@@ -16,41 +16,40 @@
  *                                                                                                        *
  **********************************************************************************************************/
 
-#pragma once
+#include <OpenSpritSheetTools/AtlasExporters/DefaultAtlasExporter.h>
+#include <OpenSpritSheetTools/Exception.h>
+#include <QFile>
+#include <QXmlStreamWriter>
 
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
-#include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
-
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+void DefaultAtlasExporter::exportToAtlas(
+    const Splitter & _splitter,
+    const std::filesystem::path & _texture_file,
+    const std::filesystem::path & _file)
 {
-    Q_OBJECT
+    QFile file(_file);
+    if(!file.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    {
+        throw FileOpenException(_file, FileOpenException::Write);
+    }
+    QFileInfo texture_info(_texture_file);
 
-public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
-
-signals:
-    void sheetLoaded(const QString & _filename);
-
-private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
-
-private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
-
-private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
-};
+    QString base_name = texture_info.baseName();
+    QString ext = texture_info.completeSuffix();
+    QXmlStreamWriter xml(&file);
+    xml.setAutoFormatting(true);
+    xml.writeStartDocument();
+    xml.writeStartElement("atlas");
+    xml.writeAttribute("file", std::filesystem::relative(_texture_file, _file.parent_path()).c_str());
+    int idx = 0;
+    _splitter.forEachFrame([&xml, &idx, &base_name, &ext](int __x, int __y, int __width, int __height) {
+       xml.writeStartElement("frame");
+       xml.writeAttribute("name", QString("%1_%2.%3").arg(base_name).arg(++idx, 4, 10, QChar('0')).arg(ext));
+       xml.writeAttribute("x", QString::number(__x));
+       xml.writeAttribute("y", QString::number(__y));
+       xml.writeAttribute("width", QString::number(__width));
+       xml.writeAttribute("height", QString::number(__height));
+       xml.writeEndElement();
+    });
+    xml.writeEndElement();
+    xml.writeEndDocument();
+}

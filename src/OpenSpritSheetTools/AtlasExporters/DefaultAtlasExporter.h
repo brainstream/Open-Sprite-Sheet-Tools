@@ -18,39 +18,20 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
-#include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
+#include <OpenSpritSheetTools/AtlasExporters/AtlasExporter.h>
 
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+class DefaultAtlasExporter : public AtlasExporter
 {
-    Q_OBJECT
-
 public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
+    void exportToAtlas(
+        const Splitter & _splitter,
+        const std::filesystem::path & _texture_file,
+        const std::filesystem::path & _file
+    ) override;
 
-signals:
-    void sheetLoaded(const QString & _filename);
-
-private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
-
-private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
-
-private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
+    QString fileExtenstion() const override
+    {
+        return "xml";
+    }
 };
+

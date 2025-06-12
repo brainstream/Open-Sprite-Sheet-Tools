@@ -16,41 +16,15 @@
  *                                                                                                        *
  **********************************************************************************************************/
 
-#pragma once
-
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
 #include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
 
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+
+AtlasSplitter::AtlasSplitter(QObject * _parent) :
+    Splitter(_parent)
 {
-    Q_OBJECT
+}
 
-public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
-
-signals:
-    void sheetLoaded(const QString & _filename);
-
-private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
-
-private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
-
-private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
-};
+bool AtlasSplitter::forEachFrame(std::function<void (int __x, int __y, int __widht, int __height)> _cb) const
+{
+    return false;
+}
