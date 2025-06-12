@@ -43,6 +43,9 @@ set(PROJECT_SOURCES
   ${OSST_SRC_DIR}/Resources/Resources.qrc
   ${OSST_SRC_DIR}/Settings.h
   ${OSST_SRC_DIR}/Settings.cpp
+  ${OSST_SRC_DIR}/Splitters/Splitter.h
+  ${OSST_SRC_DIR}/Splitters/GridSplitter.h
+  ${OSST_SRC_DIR}/Splitters/GridSplitter.cpp
 )
 
 set(OSST open-sprite-sheet-tools)

@@ -26,7 +26,7 @@
 
 SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     QWidget(parent),
-    mp_pixmap(new QPixmap()),
+    m_pixmap(new QPixmap()),
     m_sheet_pen(QColor(0, 255, 0, 80)),
     m_sprite_pen(QColor(255, 0, 0, 80)),
     m_sprite_brush(QColor(255, 0, 0, 50))
@@ -34,13 +34,23 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     m_open_image_dialog_filter = QString(tr("All supported image formats (*.%1)"))
         .arg(QImageReader().supportedImageFormats().join(" *."));
     setupUi(this);
-    mp_preview->setScene(new QGraphicsScene(mp_preview));
-    mp_btn_save_sprites->setEnabled(false);
+    m_preview->setScene(new QGraphicsScene(m_preview));
+    m_btn_save_sprites->setEnabled(false);
+    m_grid_splitter = new GridSplitter(this);
+    connect(m_spin_rows, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setRowCount);
+    connect(m_spin_columns, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setColumnCount);
+    connect(m_spin_sprite_width, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setSpriteWidth);
+    connect(m_spin_sprite_height, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setSpriteHeight);
+    connect(m_spin_margin_left, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setMarginLeft);
+    connect(m_spin_margin_top, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setMarginTop);
+    connect(m_spin_hspacing, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setHorizontalSpacing);
+    connect(m_spin_vspacing, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setVerticalSpacing);
+    connect(m_grid_splitter, &Splitter::framesChanged, this, &SpriteSheetSplitterWidget::updatePreview);
 }
 
 SpriteSheetSplitterWidget::~SpriteSheetSplitterWidget()
 {
-    delete mp_pixmap;
+    delete m_pixmap;
 }
 
 void SpriteSheetSplitterWidget::openTexture()
@@ -58,19 +68,19 @@ void SpriteSheetSplitterWidget::openTexture()
 
 void SpriteSheetSplitterWidget::loadImage(const QString & _path)
 {
-    if(mp_pixmap->load(_path))
+    if(m_pixmap->load(_path))
     {
-        mp_edit_texture_size->setText(QString("%1x%2").arg(mp_pixmap->width()).arg(mp_pixmap->height()));
-        mp_edit_texture_file->setText(_path);
-        mp_spin_rows->setValue(0);
-        mp_spin_columns->setValue(0);
-        mp_spin_sprite_width->setValue(0);
-        mp_spin_sprite_height->setValue(0);
-        mp_spin_vspacing->setValue(0);
-        mp_spin_hspacing->setValue(0);
-        mp_spin_margin_left->setValue(0);
-        mp_spin_margin_top->setValue(0);
-        mp_tabs_source->setEnabled(true);
+        m_edit_texture_size->setText(QString("%1x%2").arg(m_pixmap->width()).arg(m_pixmap->height()));
+        m_edit_texture_file->setText(_path);
+        m_spin_rows->setValue(0);
+        m_spin_columns->setValue(0);
+        m_spin_sprite_width->setValue(0);
+        m_spin_sprite_height->setValue(0);
+        m_spin_vspacing->setValue(0);
+        m_spin_hspacing->setValue(0);
+        m_spin_margin_left->setValue(0);
+        m_spin_margin_top->setValue(0);
+        m_tabs_source->setEnabled(true);
         updatePreview();
         emit sheetLoaded(_path);
     }
@@ -82,44 +92,14 @@ void SpriteSheetSplitterWidget::loadImage(const QString & _path)
 
 void SpriteSheetSplitterWidget::updatePreview()
 {
-    QGraphicsScene * scene = mp_preview->scene();
+    QGraphicsScene * scene = m_preview->scene();
     scene->clear();
-    QGraphicsPixmapItem * pixmap_item = scene->addPixmap(*mp_pixmap);
-    scene->addRect({pixmap_item->pos(), mp_pixmap->size()}, m_sheet_pen);
-    bool is_valid = forEachRect([this, scene](int __x, int __y, int __width, int __height) {
+    QGraphicsPixmapItem * pixmap_item = scene->addPixmap(*m_pixmap);
+    scene->addRect({pixmap_item->pos(), m_pixmap->size()}, m_sheet_pen);
+    bool is_valid = m_grid_splitter->forEachFrame([this, scene](int __x, int __y, int __width, int __height) {
         scene->addRect(__x, __y, __width, __height, m_sprite_pen, m_sprite_brush);
     });
-    mp_btn_save_sprites->setEnabled(is_valid);
-}
-
-bool SpriteSheetSplitterWidget::forEachRect(std::function<void(int, int, int, int)> _cb) const
-{
-    const int rows = mp_spin_rows->value();
-    const int columns = mp_spin_columns->value();
-    const int sprite_width = mp_spin_sprite_width->value();
-    const int sprite_height = mp_spin_sprite_height->value();
-    int margin_left = mp_spin_margin_left->value();
-    int margin_top = mp_spin_margin_top->value();
-    int horizontal_spacing = mp_spin_hspacing->value();
-    int vertical_spacing = mp_spin_vspacing->value();
-    if(margin_left < 0) margin_left = 0;
-    if(margin_top < 0) margin_top = 0;
-    if(horizontal_spacing < 0) horizontal_spacing = 0;
-    if(vertical_spacing < 0) vertical_spacing = 0;
-    if(rows <= 0 || columns <= 0 || sprite_width <= 0 || sprite_height <= 0)
-    {
-        return false;
-    }
-    for(quint32 row = 0; row < rows; ++row)
-    {
-        int y = margin_top + row *sprite_height + row * vertical_spacing;
-        for(quint32 col = 0; col < columns; ++col)
-        {
-            int x = margin_left + col * sprite_width + col * horizontal_spacing;
-            _cb(x, y, sprite_width, sprite_height);
-        }
-    }
-    return true;
+    m_btn_save_sprites->setEnabled(is_valid);
 }
 
 void SpriteSheetSplitterWidget::saveSprites()
@@ -133,14 +113,14 @@ void SpriteSheetSplitterWidget::saveSprites()
     }
     QDir dir(dir_path);
     settings.setValue(gc_settings_key_split_dir, dir.absolutePath());
-    QFileInfo fi(mp_edit_texture_file->text());
+    QFileInfo fi(m_edit_texture_file->text());
     QString format = dir.filePath(QString("%1_%2.png").arg(fi.baseName()).arg("%1"));
     int idx = 1;
-    forEachRect([this, &idx, &format](int __x, int __y, int __width, int __height) {
+    m_grid_splitter->forEachFrame([this, &idx, &format](int __x, int __y, int __width, int __height) {
         QImage img(__width, __height, QImage::Format_ARGB32);
         img.fill(0);
         QPainter painter(&img);
-        painter.drawPixmap(0, 0, *mp_pixmap, __x, __y, __width, __height);
+        painter.drawPixmap(0, 0, *m_pixmap, __x, __y, __width, __height);
         img.save(format.arg(idx++, 4, 10, QChar('0')));
     });
 }

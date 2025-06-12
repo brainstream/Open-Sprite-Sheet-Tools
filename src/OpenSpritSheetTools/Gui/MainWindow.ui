@@ -10,14 +10,11 @@
     <height>854</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>MainWindow</string>
-  </property>
   <property name="windowIcon">
    <iconset resource="../Resources/Resources.qrc">
     <normaloff>:/image/icon</normaloff>:/image/icon</iconset>
   </property>
-  <widget class="QWidget" name="mp_central_widget">
+  <widget class="QWidget" name="m_central_widget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="leftMargin">
      <number>0</number>
@@ -32,7 +29,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QTabWidget" name="mp_tabs">
+     <widget class="QTabWidget" name="m_tabs">
       <property name="tabsClosable">
        <bool>true</bool>
       </property>
@@ -43,7 +40,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QToolBar" name="mp_toolbar">
+  <widget class="QToolBar" name="m_toolbar">
    <property name="windowTitle">
     <string>Main Tool Bar</string>
    </property>
@@ -62,9 +59,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="mp_action_split_sheet"/>
+   <addaction name="m_action_split_sheet"/>
   </widget>
-  <action name="mp_action_split_sheet">
+  <action name="m_action_split_sheet">
    <property name="icon">
     <iconset theme="QIcon::ThemeIcon::EditCut"/>
    </property>
@@ -81,7 +78,7 @@
  </resources>
  <connections>
   <connection>
-   <sender>mp_action_split_sheet</sender>
+   <sender>m_action_split_sheet</sender>
    <signal>triggered()</signal>
    <receiver>MainWindow</receiver>
    <slot>showSheetSplitter()</slot>
@@ -97,7 +94,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>mp_tabs</sender>
+   <sender>m_tabs</sender>
    <signal>tabCloseRequested(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>closeTab(int)</slot>

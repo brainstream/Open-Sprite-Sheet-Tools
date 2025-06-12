@@ -16,39 +16,22 @@
  *                                                                                                        *
  **********************************************************************************************************/
 
-#include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
-#include <OpenSpritSheetTools/Gui/MainWindow.h>
-#include <OpenSpritSheetTools/Settings.h>
-#include <QFileInfo>
+#pragma once
 
-MainWindow::MainWindow(QWidget *_parent) :
-    QMainWindow(_parent)
-{
-    setupUi(this);
-    QSettings settings;
-    restoreGeometry(settings.value(gc_settings_key_wnd_geom).toByteArray());
-    restoreState(settings.value(gc_settings_key_wnd_state).toByteArray());
-}
+#include <QObject>
 
-void MainWindow::closeEvent(QCloseEvent * _event)
+class Splitter : public QObject
 {
-    QSettings settings;
-    settings.setValue(gc_settings_key_wnd_geom, saveGeometry());
-    settings.setValue(gc_settings_key_wnd_state, saveState());
-}
+    Q_OBJECT
 
-void MainWindow::showSheetSplitter()
-{
-    SpriteSheetSplitterWidget * splitter_widget = new SpriteSheetSplitterWidget(this);
-    int tab = m_tabs->addTab(splitter_widget, tr("Split Sprite Sheet"));
-    connect(splitter_widget, &SpriteSheetSplitterWidget::sheetLoaded, this, [this, tab](const QString & _filename) {
-        QFileInfo fi(_filename);
-        m_tabs->setTabText(tab, tr("Splitting: %1").arg(fi.fileName()));
-    });
-    m_tabs->setCurrentIndex(tab);
-}
+public:
+    explicit Splitter(QObject * _parent) :
+        QObject(_parent)
+    {
+    }
 
-void MainWindow::closeTab(int _index)
-{
-    m_tabs->widget(_index)->deleteLater();
-}
+    virtual bool forEachFrame(std::function<void(int __x, int __y, int __width, int __height)> _cb) const = 0;
+
+signals:
+    void framesChanged();
+};

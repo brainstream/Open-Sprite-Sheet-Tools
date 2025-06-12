@@ -16,39 +16,79 @@
  *                                                                                                        *
  **********************************************************************************************************/
 
-#include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
-#include <OpenSpritSheetTools/Gui/MainWindow.h>
-#include <OpenSpritSheetTools/Settings.h>
-#include <QFileInfo>
+#pragma once
 
-MainWindow::MainWindow(QWidget *_parent) :
-    QMainWindow(_parent)
-{
-    setupUi(this);
-    QSettings settings;
-    restoreGeometry(settings.value(gc_settings_key_wnd_geom).toByteArray());
-    restoreState(settings.value(gc_settings_key_wnd_state).toByteArray());
-}
+#include <OpenSpritSheetTools/Splitters/Splitter.h>
 
-void MainWindow::closeEvent(QCloseEvent * _event)
+class GridSplitter : public Splitter
 {
-    QSettings settings;
-    settings.setValue(gc_settings_key_wnd_geom, saveGeometry());
-    settings.setValue(gc_settings_key_wnd_state, saveState());
-}
+    Q_OBJECT
 
-void MainWindow::showSheetSplitter()
-{
-    SpriteSheetSplitterWidget * splitter_widget = new SpriteSheetSplitterWidget(this);
-    int tab = m_tabs->addTab(splitter_widget, tr("Split Sprite Sheet"));
-    connect(splitter_widget, &SpriteSheetSplitterWidget::sheetLoaded, this, [this, tab](const QString & _filename) {
-        QFileInfo fi(_filename);
-        m_tabs->setTabText(tab, tr("Splitting: %1").arg(fi.fileName()));
-    });
-    m_tabs->setCurrentIndex(tab);
-}
+public:
+    explicit GridSplitter(QObject * _parent);
+    bool forEachFrame(std::function<void (int __x, int __y, int __widht, int __height)> _cb) const override;
 
-void MainWindow::closeTab(int _index)
-{
-    m_tabs->widget(_index)->deleteLater();
-}
+public slots:
+    void setColumnCount(int _count)
+    {
+        m_column_count = _count;
+        recalculate();
+    }
+
+    void setRowCount(int _count)
+    {
+        m_row_count = _count;
+        recalculate();
+    }
+
+    void setSpriteWidth(int _width)
+    {
+        m_sprite_width = _width;
+        recalculate();
+    }
+
+    void setSpriteHeight(int _height)
+    {
+        m_sprite_height = _height;
+        recalculate();
+    }
+
+    void setMarginTop(int _margin)
+    {
+        m_margin_top = _margin;
+        recalculate();
+    }
+
+    void setMarginLeft(int _margin)
+    {
+        m_margin_left = _margin;
+        recalculate();
+    }
+
+    void setHorizontalSpacing(int _spacing)
+    {
+        m_horizontal_spacing = _spacing;
+        recalculate();
+    }
+
+    void setVerticalSpacing(int _spacing)
+    {
+        m_vertical_spacing = _spacing;
+        recalculate();
+    }
+
+private:
+    void recalculate();
+
+private:
+    int m_column_count;
+    int m_row_count;
+    int m_sprite_width;
+    int m_sprite_height;
+    int m_margin_top;
+    int m_margin_left;
+    int m_horizontal_spacing;
+    int m_vertical_spacing;
+    bool m_is_valid;
+};
+

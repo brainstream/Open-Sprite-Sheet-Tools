@@ -16,39 +16,59 @@
  *                                                                                                        *
  **********************************************************************************************************/
 
-#include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
-#include <OpenSpritSheetTools/Gui/MainWindow.h>
-#include <OpenSpritSheetTools/Settings.h>
-#include <QFileInfo>
+#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
 
-MainWindow::MainWindow(QWidget *_parent) :
-    QMainWindow(_parent)
+GridSplitter::GridSplitter(QObject * _parent) :
+    Splitter(_parent),
+    m_column_count(0),
+    m_row_count(0),
+    m_sprite_width(0),
+    m_sprite_height(0),
+    m_margin_top(0),
+    m_margin_left(0),
+    m_horizontal_spacing(0),
+    m_vertical_spacing(0),
+    m_is_valid(false)
 {
-    setupUi(this);
-    QSettings settings;
-    restoreGeometry(settings.value(gc_settings_key_wnd_geom).toByteArray());
-    restoreState(settings.value(gc_settings_key_wnd_state).toByteArray());
 }
 
-void MainWindow::closeEvent(QCloseEvent * _event)
+void GridSplitter::recalculate()
 {
-    QSettings settings;
-    settings.setValue(gc_settings_key_wnd_geom, saveGeometry());
-    settings.setValue(gc_settings_key_wnd_state, saveState());
+    bool changed = false;
+    if(m_margin_left < 0) m_margin_left = 0;
+    if(m_margin_top < 0) m_margin_top = 0;
+    if(m_horizontal_spacing < 0) m_horizontal_spacing = 0;
+    if(m_vertical_spacing < 0) m_vertical_spacing = 0;
+    if(m_row_count <= 0 || m_column_count <= 0 || m_sprite_width <= 0 || m_sprite_height <= 0)
+    {
+        changed = m_is_valid;
+        m_is_valid = false;
+    }
+    else
+    {
+        m_is_valid = true;
+        changed = true;
+    }
+    if(changed)
+    {
+        emit framesChanged();
+    }
 }
 
-void MainWindow::showSheetSplitter()
+bool GridSplitter::forEachFrame(std::function<void (int __x, int __y, int __widht, int __height)> _cb) const
 {
-    SpriteSheetSplitterWidget * splitter_widget = new SpriteSheetSplitterWidget(this);
-    int tab = m_tabs->addTab(splitter_widget, tr("Split Sprite Sheet"));
-    connect(splitter_widget, &SpriteSheetSplitterWidget::sheetLoaded, this, [this, tab](const QString & _filename) {
-        QFileInfo fi(_filename);
-        m_tabs->setTabText(tab, tr("Splitting: %1").arg(fi.fileName()));
-    });
-    m_tabs->setCurrentIndex(tab);
-}
-
-void MainWindow::closeTab(int _index)
-{
-    m_tabs->widget(_index)->deleteLater();
+    if(!m_is_valid)
+    {
+        return false;
+    }
+    for(int row = 0; row < m_row_count; ++row)
+    {
+        int y = m_margin_top + row * m_sprite_height + row * m_vertical_spacing;
+        for(int col = 0; col < m_column_count; ++col)
+        {
+            int x = m_margin_left + col * m_sprite_width + col * m_horizontal_spacing;
+            _cb(x, y, m_sprite_width, m_sprite_height);
+        }
+    }
+    return true;
 }

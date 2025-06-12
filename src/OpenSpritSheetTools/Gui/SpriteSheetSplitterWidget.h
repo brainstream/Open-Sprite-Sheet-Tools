@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
 #include "ui_SpriteSheetSplitterWidget.h"
-#include <functional>
 
 class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
 {
@@ -39,12 +39,12 @@ private slots:
 
 private:
     void loadImage(const QString & _path);
-    bool forEachRect(std::function<void(int, int, int, int)> _cb) const;
 
 private:
     QString m_open_image_dialog_filter;
-    QPixmap * mp_pixmap;
+    QPixmap * m_pixmap;
     QPen m_sheet_pen;
     QPen m_sprite_pen;
     QBrush m_sprite_brush;
+    GridSplitter * m_grid_splitter;
 };
