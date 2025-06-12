@@ -55,20 +55,28 @@ void GridSplitter::recalculate()
     }
 }
 
-bool GridSplitter::forEachFrame(std::function<void (int __x, int __y, int __widht, int __height)> _cb) const
+bool GridSplitter::forEachFrame(std::function<void (const Frame &)> _cb) const
 {
     if(!m_is_valid)
     {
         return false;
     }
-    for(int row = 0; row < m_row_count; ++row)
+    Frame frame;
+    frame.width = m_sprite_width;
+    frame.height = m_sprite_height;
+    for(qint32 row = 0; row < m_row_count; ++row)
     {
-        int y = m_margin_top + row * m_sprite_height + row * m_vertical_spacing;
-        for(int col = 0; col < m_column_count; ++col)
+        frame.y = m_margin_top + row * m_sprite_height + row * m_vertical_spacing;
+        for(qint32 col = 0; col < m_column_count; ++col)
         {
-            int x = m_margin_left + col * m_sprite_width + col * m_horizontal_spacing;
-            _cb(x, y, m_sprite_width, m_sprite_height);
+            frame.x = m_margin_left + col * m_sprite_width + col * m_horizontal_spacing;
+            _cb(frame);
         }
     }
     return true;
+}
+
+qsizetype GridSplitter::frameCount() const
+{
+    return m_is_valid ? m_column_count * m_row_count : 0;
 }

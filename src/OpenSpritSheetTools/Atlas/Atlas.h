@@ -18,20 +18,12 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/Splitters/Splitter.h>
+#include <OpenSpritSheetTools/Atlas/Frame.h>
+#include <QList>
 #include <filesystem>
-#include <QFileInfo>
 
-class AtlasExporter
+struct Atlas
 {
-    Q_DISABLE_COPY_MOVE(AtlasExporter)
-
-public:
-    AtlasExporter() { }
-    virtual ~AtlasExporter() { }
-    virtual void exportToAtlas(
-        const Splitter & _splitter,
-        const std::filesystem::path & _texture_file,
-        const std::filesystem::path & _file) = 0;
-    virtual QString fileExtenstion() const = 0;
+    std::filesystem::path texture;
+    QList<Frame> frames;
 };

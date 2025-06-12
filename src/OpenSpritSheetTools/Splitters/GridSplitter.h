@@ -26,7 +26,8 @@ class GridSplitter : public Splitter
 
 public:
     explicit GridSplitter(QObject * _parent);
-    bool forEachFrame(std::function<void (int __x, int __y, int __widht, int __height)> _cb) const override;
+    bool forEachFrame(std::function<void(const Frame &)> _cb) const override;
+    virtual qsizetype frameCount() const override;
 
 public slots:
     void setColumnCount(int _count)

@@ -24,7 +24,12 @@ AtlasSplitter::AtlasSplitter(QObject * _parent) :
 {
 }
 
-bool AtlasSplitter::forEachFrame(std::function<void (int __x, int __y, int __widht, int __height)> _cb) const
+bool AtlasSplitter::forEachFrame(std::function<void(const Frame &)> _cb) const
 {
     return false;
+}
+
+qsizetype AtlasSplitter::frameCount() const
+{
+    return 0;
 }

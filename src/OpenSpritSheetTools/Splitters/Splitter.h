@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <OpenSpritSheetTools/Atlas/Frame.h>
 #include <QObject>
 
 class Splitter : public QObject
@@ -30,7 +31,8 @@ public:
     {
     }
 
-    virtual bool forEachFrame(std::function<void(int __x, int __y, int __width, int __height)> _cb) const = 0;
+    virtual bool forEachFrame(std::function<void(const Frame &)> _cb) const = 0;
+    virtual qsizetype frameCount() const = 0;
 
 signals:
     void framesChanged();

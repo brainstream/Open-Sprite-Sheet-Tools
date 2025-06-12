@@ -18,15 +18,13 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/Splitters/Splitter.h>
+#include <OpenSpritSheetTools/Atlas/AtlasSerializer.h>
 
-class AtlasSplitter : public Splitter
+class DefaultAtlasSerializer : public AtlasSerializer
 {
-    Q_OBJECT
-
 public:
-    AtlasSplitter(QObject * _parent);
-    bool forEachFrame(std::function<void(const Frame &)> _cb) const override;
-    qsizetype frameCount() const override;
+    void serialize(const Atlas & _atlas, const std::filesystem::path & _file) override;
+    void deserialize(const std::filesystem::path & _file, Atlas & _atlas) override;
+    const char * defaultFileExtenstion() const override { return "xml"; }
 };
 

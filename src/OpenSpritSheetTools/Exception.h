@@ -76,3 +76,33 @@ private:
         }
     }
 };
+
+class InvalidXmlException : public Exception
+{
+public:
+    InvalidXmlException(const std::filesystem::path & _filename) :
+        Exception(QObject::tr("File \"%1\" is not valid XML").arg(_filename.string()))
+    {
+    }
+};
+
+class InvalidFileFormatException : public Exception
+{
+public:
+    InvalidFileFormatException(const std::filesystem::path & _filename) :
+        Exception(getMessage(_filename))
+    {
+    }
+
+    InvalidFileFormatException(const std::filesystem::path & _filename, const QString & _additional_message) :
+        Exception(getMessage(_filename, _additional_message))
+    {
+    }
+
+private:
+    QString getMessage(const std::filesystem::path & _filename, const QString & _additional_message = QString())
+    {
+        QString message = QObject::tr("File \"%1\" has invalid format").arg(_filename.string());
+        return _additional_message.isEmpty() ? message : QString("%1. %2").arg(message).arg(_additional_message);
+    }
+};

@@ -17,7 +17,7 @@
  **********************************************************************************************************/
 
 #include <OpenSpritSheetTools/Gui/SpriteSheetSplitterWidget.h>
-#include <OpenSpritSheetTools/AtlasExporters/DefaultAtlasExporter.h>
+#include <OpenSpritSheetTools/Atlas/DefaultAtlasSerializer.h>
 #include <OpenSpritSheetTools/Settings.h>
 #include <OpenSpritSheetTools/Exception.h>
 #include <QGraphicsPixmapItem>
@@ -131,8 +131,8 @@ void SpriteSheetSplitterWidget::syncWithSplitter()
     scene->clear();
     QGraphicsPixmapItem * pixmap_item = scene->addPixmap(*m_pixmap);
     scene->addRect({pixmap_item->pos(), m_pixmap->size()}, m_sheet_pen);
-    bool is_valid = m_current_splitter->forEachFrame([this, scene](int __x, int __y, int __width, int __height) {
-        scene->addRect(__x, __y, __width, __height, m_sprite_pen, m_sprite_brush);
+    bool is_valid = m_current_splitter->forEachFrame([this, scene](const Frame & __frame) {
+        scene->addRect(__frame.x, __frame.y, __frame.width, __frame.height, m_sprite_pen, m_sprite_brush);
     });
     setExportControlsEnabled(is_valid);
 }
@@ -150,40 +150,47 @@ void SpriteSheetSplitterWidget::exportSprites()
     settings.setValue(gc_settings_key_split_dir, dir.absolutePath());
     QFileInfo fi(m_edit_texture_file->text());
     QString format = dir.filePath(QString("%1_%2.png").arg(fi.baseName()).arg("%1"));
-    int idx = 1;
-    m_current_splitter->forEachFrame([this, &idx, &format](int __x, int __y, int __width, int __height) {
-        QImage img(__width, __height, QImage::Format_ARGB32);
+    quint32 index = 0;
+    m_current_splitter->forEachFrame([this, &format, &index](const Frame & __frame) {
+        QImage img(__frame.width, __frame.height, QImage::Format_ARGB32);
         img.fill(0);
         QPainter painter(&img);
-        painter.drawPixmap(0, 0, *m_pixmap, __x, __y, __width, __height);
-        img.save(format.arg(idx++, 4, 10, QChar('0')));
+        painter.drawPixmap(0, 0, *m_pixmap, __frame.x, __frame.y, __frame.width, __frame.height);
+        img.save(format.arg(++index, 4, 10, QChar('0')));
     });
 }
 
 void SpriteSheetSplitterWidget::exportToAtlas()
 {
-    DefaultAtlasExporter exporter;
-    QFileInfo texture_file_info(m_edit_texture_file->text());
+    DefaultAtlasSerializer serializer;
+    std::filesystem::path texture_file_path(m_edit_texture_file->text().toStdString());
     QString default_filename = m_last_atlas_export_file;
     if(default_filename.isEmpty())
     {
-        default_filename = QDir(texture_file_info.absolutePath())
-            .absoluteFilePath(QString("%1.%2").arg(texture_file_info.baseName(), exporter.fileExtenstion()));
+        std::filesystem::path atlas_file_path = texture_file_path;
+        atlas_file_path.replace_extension(serializer.defaultFileExtenstion());
+        default_filename = atlas_file_path.c_str();
     }
     QString filename = QFileDialog::getSaveFileName(
         this,
         QString(),
         default_filename,
-        QString(tr("Atlas (%1) (*.%1)")).arg(exporter.fileExtenstion()));
+        QString(tr("Atlas (%1) (*.%1)")).arg(serializer.defaultFileExtenstion()));
     if(!filename.isEmpty())
     {
         m_last_atlas_export_file = filename;
+        Atlas atlas
+        {
+            .texture = texture_file_path,
+            .frames = QList<Frame>()
+        };
+        atlas.frames.reserve(m_current_splitter->frameCount());
+        m_current_splitter->forEachFrame([&atlas](const Frame & __frame) {
+            atlas.frames.append(__frame);
+        });
         try
         {
-            exporter.exportToAtlas(
-                *m_current_splitter,
-                texture_file_info.absoluteFilePath().toStdString(),
-                filename.toStdString());
+            serializer.serialize(atlas, filename.toStdString());
         }
         catch(const Exception & _exception)
         {

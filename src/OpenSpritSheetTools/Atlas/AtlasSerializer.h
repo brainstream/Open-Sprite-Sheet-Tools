@@ -18,20 +18,31 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/AtlasExporters/AtlasExporter.h>
+#include <OpenSpritSheetTools/Atlas/Atlas.h>
+#include <QObject>
 
-class DefaultAtlasExporter : public AtlasExporter
+class AtlasSerializer
 {
-public:
-    void exportToAtlas(
-        const Splitter & _splitter,
-        const std::filesystem::path & _texture_file,
-        const std::filesystem::path & _file
-    ) override;
+    Q_DISABLE_COPY_MOVE(AtlasSerializer)
 
-    QString fileExtenstion() const override
+public:
+    AtlasSerializer() { }
+    virtual ~AtlasSerializer() { }
+    virtual void serialize(const Atlas & _atlas, const std::filesystem::path & _file) = 0;
+    virtual void deserialize(const std::filesystem::path & _file, Atlas & _atlas) = 0;
+    virtual const char * defaultFileExtenstion() const = 0;
+
+protected:
+    static QString makeDefaultFrameName(const Atlas & _atlas, quint32 _index)
     {
-        return "xml";
+        return QString("%1_%2.%3")
+            .arg(_atlas.texture.stem().string())
+            .arg(_index, 4, 10, QChar('0'))
+            .arg(_atlas.texture.extension().string());
+    }
+
+    static QString makeTextureRelativePath(const Atlas & _atlas, const std::filesystem::path & _data_file_path)
+    {
+        return QString::fromStdString(std::filesystem::relative(_atlas.texture, _data_file_path.parent_path()));
     }
 };
-
