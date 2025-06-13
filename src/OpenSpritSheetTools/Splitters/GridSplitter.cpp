@@ -34,22 +34,22 @@ GridSplitter::GridSplitter(QObject * _parent) :
 
 void GridSplitter::recalculate()
 {
-    bool changed = false;
+    bool has_changes = false;
     if(m_margin_left < 0) m_margin_left = 0;
     if(m_margin_top < 0) m_margin_top = 0;
     if(m_horizontal_spacing < 0) m_horizontal_spacing = 0;
     if(m_vertical_spacing < 0) m_vertical_spacing = 0;
     if(m_row_count <= 0 || m_column_count <= 0 || m_sprite_width <= 0 || m_sprite_height <= 0)
     {
-        changed = m_is_valid;
+        has_changes = m_is_valid;
         m_is_valid = false;
     }
     else
     {
         m_is_valid = true;
-        changed = true;
+        has_changes = true;
     }
-    if(changed)
+    if(has_changes)
     {
         emit framesChanged();
     }
@@ -79,4 +79,20 @@ bool GridSplitter::forEachFrame(std::function<void (const Frame &)> _cb) const
 qsizetype GridSplitter::frameCount() const
 {
     return m_is_valid ? m_column_count * m_row_count : 0;
+}
+
+void GridSplitter::reset()
+{
+    bool has_changes = m_is_valid;
+    m_column_count = 0;
+    m_row_count = 0;
+    m_sprite_width = 0;
+    m_sprite_height = 0;
+    m_margin_top = 0;
+    m_margin_left = 0;
+    m_horizontal_spacing = 0;
+    m_vertical_spacing = 0;
+    m_is_valid = false;
+    if(has_changes)
+        emit framesChanged();
 }

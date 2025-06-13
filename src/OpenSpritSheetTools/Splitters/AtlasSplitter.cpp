@@ -60,3 +60,11 @@ qsizetype AtlasSplitter::frameCount() const
 {
     return m_atlas ? m_atlas->frames.size() : 0;
 }
+
+void AtlasSplitter::reset()
+{
+    bool has_changes = m_atlas != nullptr;
+    m_atlas.reset();
+    if(has_changes)
+        emit framesChanged();
+}

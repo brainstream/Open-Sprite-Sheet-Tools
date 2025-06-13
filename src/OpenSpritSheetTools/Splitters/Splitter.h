@@ -33,6 +33,7 @@ public:
 
     virtual bool forEachFrame(std::function<void(const Frame &)> _cb) const = 0;
     virtual qsizetype frameCount() const = 0;
+    virtual void reset() = 0;
 
 signals:
     void framesChanged();

@@ -30,6 +30,7 @@ public:
     AtlasSplitter(QObject * _parent);
     bool forEachFrame(std::function<void(const Frame &)> _cb) const override;
     qsizetype frameCount() const override;
+    void reset() override;
 
 public slots:
     void setDataFile(const QString & _file);

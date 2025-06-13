@@ -78,6 +78,8 @@ public slots:
         recalculate();
     }
 
+    void reset() override;
+
 private:
     void recalculate();
 

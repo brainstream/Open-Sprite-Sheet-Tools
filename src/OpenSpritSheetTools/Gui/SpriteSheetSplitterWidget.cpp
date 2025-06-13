@@ -90,6 +90,8 @@ void SpriteSheetSplitterWidget::openTexture()
         m_open_image_dialog_filter);
     if(!filename.isEmpty())
     {
+        m_grid_splitter->reset();
+        m_atlas_splitter->reset();
         QFileInfo file_info(filename);
         settings.setValue(gc_settings_key_sheet_dir, file_info.absolutePath());
         loadImage(filename);
@@ -100,6 +102,7 @@ void SpriteSheetSplitterWidget::loadImage(const QString & _path)
 {
     if(m_pixmap->load(_path))
     {
+        m_preview->scene()->setSceneRect(0, 0, m_pixmap->width(), m_pixmap->height());
         m_edit_texture_size->setText(QString("%1x%2").arg(m_pixmap->width()).arg(m_pixmap->height()));
         m_edit_texture_file->setText(_path);
         m_spin_rows->setValue(0);
