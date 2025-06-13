@@ -34,6 +34,7 @@ signals:
     void sheetLoaded(const QString & _filename);
 
 private slots:
+    void applyColorScheme(Qt::ColorScheme _scheme);
     void openTexture();
     void syncWithSplitter();
     void exportSprites();

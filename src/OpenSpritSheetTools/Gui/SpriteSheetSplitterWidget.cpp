@@ -25,6 +25,7 @@
 #include <QImageReader>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QStyleHints>
 
 SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     QWidget(parent),
@@ -36,13 +37,15 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     m_open_image_dialog_filter = QString(tr("All supported image formats (*.%1)"))
         .arg(QImageReader().supportedImageFormats().join(" *."));
     setupUi(this);
+    QStyleHints * style_hints = QGuiApplication::styleHints();
+    applyColorScheme(style_hints->colorScheme());
     m_preview->setScene(new QGraphicsScene(m_preview));
     setExportControlsEnabled(false);
-
     m_grid_splitter = new GridSplitter(this);
     m_atlas_splitter = new AtlasSplitter(this);
     m_current_splitter = m_grid_splitter;
 
+    connect(style_hints, &QStyleHints::colorSchemeChanged, this, &SpriteSheetSplitterWidget::applyColorScheme);
     connect(m_btn_browse_texture_file, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::openTexture);
     connect(m_btn_export_sprites, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::exportSprites);
     connect(m_btn_export_to_atlas, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::exportToAtlas);
@@ -77,6 +80,16 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
 SpriteSheetSplitterWidget::~SpriteSheetSplitterWidget()
 {
     delete m_pixmap;
+}
+
+void SpriteSheetSplitterWidget::applyColorScheme(Qt::ColorScheme _scheme)
+{
+    QString brush_texture_file = _scheme == Qt::ColorScheme::Dark
+        ? ":/image/transparent_dark"
+        : ":/image/transparent_light";
+    QBrush brush(Qt::TexturePattern);
+    brush.setTexture(QPixmap(brush_texture_file));
+    m_preview->setBackgroundBrush(brush);
 }
 
 void SpriteSheetSplitterWidget::openTexture()
