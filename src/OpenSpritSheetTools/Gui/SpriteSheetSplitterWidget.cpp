@@ -40,9 +40,13 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     setExportControlsEnabled(false);
 
     m_grid_splitter = new GridSplitter(this);
+    m_atlas_splitter = new AtlasSplitter(this);
+    m_current_splitter = m_grid_splitter;
+
     connect(m_btn_browse_texture_file, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::openTexture);
     connect(m_btn_export_sprites, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::exportSprites);
     connect(m_btn_export_to_atlas, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::exportToAtlas);
+    connect(m_btn_brows_data_file, &QPushButton::clicked, this, &SpriteSheetSplitterWidget::openAtlas);
     connect(m_spin_rows, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setRowCount);
     connect(m_spin_columns, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setColumnCount);
     connect(m_spin_sprite_width, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setSpriteWidth);
@@ -52,11 +56,8 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     connect(m_spin_hspacing, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setHorizontalSpacing);
     connect(m_spin_vspacing, &QSpinBox::valueChanged, m_grid_splitter, &GridSplitter::setVerticalSpacing);
     connect(m_grid_splitter, &Splitter::framesChanged, this, &SpriteSheetSplitterWidget::syncWithSplitter);
-
-    m_atlas_splitter = new AtlasSplitter(this);
-
-    m_current_splitter = m_grid_splitter;
-
+    connect(m_atlas_splitter, &Splitter::framesChanged, this, &SpriteSheetSplitterWidget::syncWithSplitter);
+    connect(m_atlas_splitter, &AtlasSplitter::error, this, &SpriteSheetSplitterWidget::showError);
     connect(m_tabs_source, &QTabWidget::currentChanged, this, [this](int __index) {
         switch(__index)
         {
@@ -197,4 +198,24 @@ void SpriteSheetSplitterWidget::exportToAtlas()
             QMessageBox::critical(this, nullptr, _exception.message());
         }
     }
+}
+
+void SpriteSheetSplitterWidget::openAtlas()
+{
+    QString defatult_dir = m_edit_data_file->text();
+    if(defatult_dir.isEmpty())
+        defatult_dir = m_edit_texture_file->text();
+    if(!defatult_dir.isEmpty())
+        defatult_dir = QFileInfo(defatult_dir).path();
+    QString filename = QFileDialog::getOpenFileName(this, QString(), defatult_dir);
+    if(!filename.isEmpty())
+    {
+        m_edit_data_file->setText(filename);
+        m_atlas_splitter->setDataFile(filename);
+    }
+}
+
+void SpriteSheetSplitterWidget::showError(const QString & _message)
+{
+    QMessageBox::critical(this, nullptr, _message);
 }

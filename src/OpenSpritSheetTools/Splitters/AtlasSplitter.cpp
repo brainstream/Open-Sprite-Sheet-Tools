@@ -17,19 +17,46 @@
  **********************************************************************************************************/
 
 #include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-
+#include <OpenSpritSheetTools/Atlas/DefaultAtlasSerializer.h>
+#include <OpenSpritSheetTools/Exception.h>
 
 AtlasSplitter::AtlasSplitter(QObject * _parent) :
-    Splitter(_parent)
+    Splitter(_parent),
+    m_serializer(new DefaultAtlasSerializer())
 {
+}
+
+void AtlasSplitter::setDataFile(const QString & _file)
+{
+    bool has_changes = m_atlas != nullptr; // False positive [clang-analyzer-deadcode.DeadStores]
+    m_atlas.reset();
+    std::unique_ptr<Atlas> atlas(new Atlas);
+    try
+    {
+        m_serializer->deserialize(_file.toStdString(), *atlas);
+        m_atlas.swap(atlas);
+        has_changes = true;
+    }
+    catch(const Exception & exception)
+    {
+        emit error(exception.message());
+    }
+    if(has_changes)
+    {
+        emit framesChanged();
+    }
 }
 
 bool AtlasSplitter::forEachFrame(std::function<void(const Frame &)> _cb) const
 {
-    return false;
+    if(!m_atlas)
+        return false;
+    foreach(const Frame & frame, m_atlas->frames)
+        _cb(frame);
+    return true;
 }
 
 qsizetype AtlasSplitter::frameCount() const
 {
-    return 0;
+    return m_atlas ? m_atlas->frames.size() : 0;
 }

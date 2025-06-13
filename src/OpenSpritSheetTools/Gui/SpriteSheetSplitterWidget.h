@@ -38,6 +38,8 @@ private slots:
     void syncWithSplitter();
     void exportSprites();
     void exportToAtlas();
+    void openAtlas();
+    void showError(const QString & _message);
 
 private:
     void loadImage(const QString & _path);

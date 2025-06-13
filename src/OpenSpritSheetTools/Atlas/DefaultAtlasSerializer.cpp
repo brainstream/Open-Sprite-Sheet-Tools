@@ -66,7 +66,7 @@ Int getXmlFrameIntAttribute(
     {
         throw InvalidFileFormatException(
             _file,
-            QObject::tr("The XML attribute \"%1\" of element \"%2\" at position \"%3\" must be of type integer")
+            QObject::tr("The XML attribute \"%1\" of element \"%2\" at position %3 must be of type integer.")
                 .arg(_attribute_name)
                 .arg(g_xml_tag_frame)
                 .arg(_frame_position)

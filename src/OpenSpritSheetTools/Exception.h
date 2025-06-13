@@ -103,6 +103,6 @@ private:
     QString getMessage(const std::filesystem::path & _filename, const QString & _additional_message = QString())
     {
         QString message = QObject::tr("File \"%1\" has invalid format").arg(_filename.string());
-        return _additional_message.isEmpty() ? message : QString("%1. %2").arg(message).arg(_additional_message);
+        return _additional_message.isEmpty() ? message : QString("%1.\n%2").arg(message).arg(_additional_message);
     }
 };

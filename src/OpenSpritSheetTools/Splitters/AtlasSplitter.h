@@ -19,6 +19,8 @@
 #pragma once
 
 #include <OpenSpritSheetTools/Splitters/Splitter.h>
+#include <OpenSpritSheetTools/Atlas/AtlasSerializer.h>
+#include <memory>
 
 class AtlasSplitter : public Splitter
 {
@@ -28,5 +30,15 @@ public:
     AtlasSplitter(QObject * _parent);
     bool forEachFrame(std::function<void(const Frame &)> _cb) const override;
     qsizetype frameCount() const override;
+
+public slots:
+    void setDataFile(const QString & _file);
+
+signals:
+    void error(const QString & _message);
+
+private:
+    std::unique_ptr<AtlasSerializer> m_serializer;
+    std::unique_ptr<Atlas> m_atlas;
 };
 
