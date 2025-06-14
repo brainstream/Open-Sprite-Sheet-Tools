@@ -18,41 +18,28 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
-#include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
+#include <OpenSpritSheetTools/Gui/ZoomModel.h>
+#include <QGraphicsView>
 
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+class GraphicsView : public QGraphicsView
 {
     Q_OBJECT
 
 public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
+    explicit GraphicsView(QWidget * _parent);
+    void setZoomModel(ZoomModel * _model);
 
-signals:
-    void sheetLoaded(const QString & _filename);
+protected:
+    void drawBackground(QPainter * _painter, const QRectF & _rect) override;
+    void wheelEvent(QWheelEvent * _event) override;
 
 private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
-    void openAtlas();
-    void showError(const QString & _message);
+    void applyZoom(quint32 _zoom);
 
 private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
+    void applyColorScheme(Qt::ColorScheme _scheme);
 
 private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
+    ZoomModel * m_zoom_model;
 };
+

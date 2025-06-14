@@ -15,20 +15,27 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QGraphicsView" name="m_preview">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>2</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>500</width>
-       <height>600</height>
-      </size>
-     </property>
-    </widget>
+    <layout class="QVBoxLayout" name="m_layout_4">
+     <item>
+      <widget class="GraphicsView" name="m_preview">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+         <horstretch>2</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>500</width>
+         <height>600</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item alignment="Qt::AlignmentFlag::AlignRight">
+      <widget class="ZoomWidget" name="m_zoom_widget" native="true"/>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QFrame" name="m_sidebar">
@@ -470,8 +477,20 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ZoomWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">OpenSpritSheetTools/Gui/ZoomWidget.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>GraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">OpenSpritSheetTools/Gui/GraphicsView.h</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
-  <tabstop>m_preview</tabstop>
   <tabstop>m_edit_texture_file</tabstop>
   <tabstop>m_btn_browse_texture_file</tabstop>
   <tabstop>m_edit_texture_size</tabstop>

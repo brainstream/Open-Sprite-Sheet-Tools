@@ -38,9 +38,16 @@ set(PROJECT_SOURCES
   ${OSST_SRC_DIR}/Gui/MainWindow.cpp
   ${OSST_SRC_DIR}/Gui/MainWindow.h
   ${OSST_SRC_DIR}/Gui/MainWindow.ui
+  ${OSST_SRC_DIR}/Gui/GraphicsView.h
+  ${OSST_SRC_DIR}/Gui/GraphicsView.cpp
   ${OSST_SRC_DIR}/Gui/SpriteSheetSplitterWidget.h
   ${OSST_SRC_DIR}/Gui/SpriteSheetSplitterWidget.cpp
   ${OSST_SRC_DIR}/Gui/SpriteSheetSplitterWidget.ui
+  ${OSST_SRC_DIR}/Gui/ZoomModel.h
+  ${OSST_SRC_DIR}/Gui/ZoomModel.cpp
+  ${OSST_SRC_DIR}/Gui/ZoomWidget.h
+  ${OSST_SRC_DIR}/Gui/ZoomWidget.cpp
+  ${OSST_SRC_DIR}/Gui/ZoomWidget.ui
   ${OSST_SRC_DIR}/Resources/Resources.qrc
   ${OSST_SRC_DIR}/Settings.h
   ${OSST_SRC_DIR}/Settings.cpp

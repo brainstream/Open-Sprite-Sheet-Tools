@@ -16,43 +16,38 @@
  *                                                                                                        *
  **********************************************************************************************************/
 
-#pragma once
+#include <OpenSpritSheetTools/Gui/ZoomModel.h>
 
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
-#include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
+namespace {
 
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+constexpr quint32 g_zoom_step = 5;
+
+} // namespace
+
+ZoomModel::ZoomModel(quint32 _zoom, QObject * _parent) :
+    QObject(_parent),
+    m_zoom(_zoom)
 {
-    Q_OBJECT
+}
 
-public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
+void ZoomModel::increment()
+{
+    setZoom(m_zoom + g_zoom_step);
+}
 
-signals:
-    void sheetLoaded(const QString & _filename);
+void ZoomModel::decrement()
+{
+    if(m_zoom <= g_zoom_step)
+        setZoom(1);
+    else
+        setZoom(m_zoom - g_zoom_step);
+}
 
-private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
-    void openAtlas();
-    void showError(const QString & _message);
-
-private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
-
-private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
-};
+void ZoomModel::setZoom(quint32 _zoom)
+{
+    if(_zoom > 0 && _zoom != m_zoom)
+    {
+        m_zoom = _zoom;
+        emit zoomChanged(_zoom);
+    }
+}

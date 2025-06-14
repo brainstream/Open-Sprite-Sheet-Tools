@@ -18,41 +18,23 @@
 
 #pragma once
 
-#include <OpenSpritSheetTools/Splitters/GridSplitter.h>
-#include <OpenSpritSheetTools/Splitters/AtlasSplitter.h>
-#include "ui_SpriteSheetSplitterWidget.h"
+#include "ui_ZoomWidget.h"
+#include <OpenSpritSheetTools/Gui/ZoomModel.h>
 
-class SpriteSheetSplitterWidget : public QWidget, private Ui::SpriteSheetSplitterWidget
+class ZoomWidget : public QWidget, private Ui::ZoomWidget
 {
     Q_OBJECT
 
 public:
-    explicit SpriteSheetSplitterWidget(QWidget *parent = nullptr);
-    ~SpriteSheetSplitterWidget() override;
-
-signals:
-    void sheetLoaded(const QString & _filename);
+    explicit ZoomWidget(QWidget * _parent = nullptr);
+    const ZoomModel & model() const { return *m_model; }
+    ZoomModel & model() { return *m_model; }
 
 private slots:
-    void openTexture();
-    void syncWithSplitter();
-    void exportSprites();
-    void exportToAtlas();
-    void openAtlas();
-    void showError(const QString & _message);
+    void onComboboxTextChanged(const QString & _text);
+    void onSliderValueCahnged(int _value);
+    void applyZoomValue(quint32 _zoom);
 
 private:
-    void loadImage(const QString & _path);
-    void setExportControlsEnabled(bool _enabled);
-
-private:
-    QString m_open_image_dialog_filter;
-    QString m_last_atlas_export_file;
-    QPixmap * m_pixmap;
-    QPen m_sheet_pen;
-    QPen m_sprite_pen;
-    QBrush m_sprite_brush;
-    Splitter * m_current_splitter;
-    GridSplitter * m_grid_splitter;
-    AtlasSplitter * m_atlas_splitter;
+    ZoomModel * m_model;
 };
