@@ -15,7 +15,10 @@
     <normaloff>:/image/icon</normaloff>:/image/icon</iconset>
   </property>
   <widget class="QWidget" name="m_central_widget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="spacing">
+     <number>0</number>
+    </property>
     <property name="leftMargin">
      <number>0</number>
     </property>
@@ -29,6 +32,75 @@
      <number>0</number>
     </property>
     <item>
+     <widget class="QFrame" name="m_vertical_toolbar">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QToolButton" name="m_btn_pack_sprites">
+         <property name="minimumSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>48</width>
+           <height>48</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="m_btn_split_sheet">
+         <property name="minimumSize">
+          <size>
+           <width>64</width>
+           <height>64</height>
+          </size>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>48</width>
+           <height>48</height>
+          </size>
+         </property>
+         <property name="toolButtonStyle">
+          <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
+         </property>
+         <property name="autoRaise">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="m_spacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
      <widget class="QTabWidget" name="m_tabs">
       <property name="tabsClosable">
        <bool>true</bool>
@@ -40,30 +112,10 @@
     </item>
    </layout>
   </widget>
-  <widget class="QToolBar" name="m_toolbar">
-   <property name="windowTitle">
-    <string>Main Tool Bar</string>
-   </property>
-   <property name="movable">
-    <bool>false</bool>
-   </property>
-   <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonStyle::ToolButtonTextUnderIcon</enum>
-   </property>
-   <property name="floatable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-   <addaction name="m_action_split_sheet"/>
-  </widget>
   <action name="m_action_split_sheet">
    <property name="icon">
-    <iconset theme="QIcon::ThemeIcon::EditCut"/>
+    <iconset resource="../Resources/Resources.qrc">
+     <normaloff>:/image/grid-view</normaloff>:/image/grid-view</iconset>
    </property>
    <property name="text">
     <string>Split Sheet...</string>
@@ -72,46 +124,26 @@
     <enum>QAction::MenuRole::NoRole</enum>
    </property>
   </action>
+  <action name="m_action_pack_sprites">
+   <property name="icon">
+    <iconset resource="../Resources/Resources.qrc">
+     <normaloff>:/image/box</normaloff>:/image/box</iconset>
+   </property>
+   <property name="text">
+    <string>Pack Sprites...</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::MenuRole::NoRole</enum>
+   </property>
+  </action>
  </widget>
+ <tabstops>
+  <tabstop>m_tabs</tabstop>
+  <tabstop>m_btn_pack_sprites</tabstop>
+  <tabstop>m_btn_split_sheet</tabstop>
+ </tabstops>
  <resources>
   <include location="../Resources/Resources.qrc"/>
  </resources>
- <connections>
-  <connection>
-   <sender>m_action_split_sheet</sender>
-   <signal>triggered()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>showSheetSplitter()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>684</x>
-     <y>426</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>m_tabs</sender>
-   <signal>tabCloseRequested(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>closeTab(int)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>684</x>
-     <y>454</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>684</x>
-     <y>426</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
- <slots>
-  <slot>showSheetSplitter()</slot>
-  <slot>closeTab(int)</slot>
- </slots>
+ <connections/>
 </ui>

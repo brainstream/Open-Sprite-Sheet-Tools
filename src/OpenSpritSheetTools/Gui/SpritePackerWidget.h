@@ -18,21 +18,12 @@
 
 #pragma once
 
-#include "./ui_MainWindow.h"
-#include <QMainWindow>
+#include "ui_SpritePackerWidget.h"
 
-class MainWindow : public QMainWindow, private Ui::MainWindow
+class SpritePackerWidget : public QWidget, private Ui::SpritePackerWidget
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget * _parent = nullptr);
-
-protected:
-    void closeEvent(QCloseEvent * _event) override;
-
-private slots:
-    void showSheetSplitter();
-    void showSpritePacker();
-    void closeTab(int _index);
+    explicit SpritePackerWidget(QWidget * _parent = nullptr);
 };

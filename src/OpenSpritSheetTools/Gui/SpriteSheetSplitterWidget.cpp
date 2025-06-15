@@ -30,7 +30,7 @@ SpriteSheetSplitterWidget::SpriteSheetSplitterWidget(QWidget *parent) :
     QWidget(parent),
     m_pixmap(new QPixmap()),
     m_sheet_pen(QColor(0, 0, 0, 150)),
-    m_sheet_brush(QColor(255, 255, 255, 255)),
+    m_sheet_brush(QColor(255, 255, 255, 180)),
     m_sprite_pen(QColor(255, 0, 0, 80)),
     m_sprite_brush(QColor(255, 0, 0, 50))
 {

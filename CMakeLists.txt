@@ -43,6 +43,9 @@ set(PROJECT_SOURCES
   ${OSST_SRC_DIR}/Gui/SpriteSheetSplitterWidget.h
   ${OSST_SRC_DIR}/Gui/SpriteSheetSplitterWidget.cpp
   ${OSST_SRC_DIR}/Gui/SpriteSheetSplitterWidget.ui
+  ${OSST_SRC_DIR}/Gui/SpritePackerWidget.h
+  ${OSST_SRC_DIR}/Gui/SpritePackerWidget.cpp
+  ${OSST_SRC_DIR}/Gui/SpritePackerWidget.ui
   ${OSST_SRC_DIR}/Gui/ZoomModel.h
   ${OSST_SRC_DIR}/Gui/ZoomModel.cpp
   ${OSST_SRC_DIR}/Gui/ZoomWidget.h
