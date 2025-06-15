@@ -49,6 +49,7 @@ private:
     QString m_open_image_dialog_filter;
     QString m_last_atlas_export_file;
     QPixmap * m_pixmap;
+    QBrush m_sheet_brush;
     QPen m_sheet_pen;
     QPen m_sprite_pen;
     QBrush m_sprite_brush;
