@@ -17,6 +17,7 @@
  **********************************************************************************************************/
 
 #include <OpenSpritSheetTools/Gui/GraphicsView.h>
+#include <QGraphicsItem>
 #include <QStyleHints>
 #include <QGuiApplication>
 #include <QWheelEvent>
@@ -58,6 +59,56 @@ void GraphicsView::wheelEvent(QWheelEvent * _event)
         else if(delta.y() < 0)
             m_zoom_model->decrement();
     }
+}
+
+void GraphicsView::keyPressEvent(QKeyEvent * _event)
+{
+    bool accept = true;
+    if(_event->modifiers().testFlag(Qt::ControlModifier))
+    {
+        switch(_event->key())
+        {
+        case Qt::Key_A:
+            foreach(QGraphicsItem * item, scene()->items())
+                item->setSelected(true);
+            break;
+        case Qt::Key_0:
+            if(m_zoom_model) m_zoom_model->setZoom(100);
+            break;
+        case Qt::Key_Plus:
+            if(m_zoom_model) m_zoom_model->increment();
+            break;
+        case Qt::Key_Minus:
+            if(m_zoom_model) m_zoom_model->decrement();
+            break;
+        default:
+            accept = false;
+            break;
+        }
+    }
+    else
+    {
+        switch(_event->key())
+        {
+        case Qt::Key_Escape:
+            foreach(QGraphicsItem * item, scene()->items())
+                item->setSelected(false);
+            break;
+        case Qt::Key_ZoomIn:
+            if(m_zoom_model) m_zoom_model->increment();
+            break;
+        case Qt::Key_ZoomOut:
+            if(m_zoom_model) m_zoom_model->decrement();
+            break;
+        default:
+            accept = false;
+            break;
+        }
+    }
+    if(accept)
+        _event->accept();
+    else
+        QGraphicsView::keyPressEvent(_event);
 }
 
 void GraphicsView::setZoomModel(ZoomModel * _model)

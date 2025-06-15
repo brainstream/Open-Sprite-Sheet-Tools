@@ -136,10 +136,17 @@ void SpriteSheetSplitterWidget::syncWithSplitter()
     QGraphicsScene * scene = m_preview->scene();
     scene->clear();
     QGraphicsPixmapItem * pixmap_item = scene->addPixmap(*m_pixmap);
-    QGraphicsRectItem * bg_item = scene->addRect({pixmap_item->pos(), m_pixmap->size()}, m_sheet_pen, m_sheet_brush);
+    scene->addRect({pixmap_item->pos(), m_pixmap->size()}, m_sheet_pen, m_sheet_brush);
     pixmap_item->setZValue(1);
     bool is_valid = m_current_splitter->forEachFrame([this, scene](const Frame & __frame) {
-        scene->addRect(__frame.x, __frame.y, __frame.width, __frame.height, m_sprite_pen, m_sprite_brush);
+        QGraphicsRectItem * item = scene->addRect(
+            __frame.x,
+            __frame.y,
+            __frame.width,
+            __frame.height,
+            m_sprite_pen,
+            m_sprite_brush);
+        item->setFlag(QGraphicsItem::ItemIsSelectable);
     });
     setExportControlsEnabled(is_valid);
 }

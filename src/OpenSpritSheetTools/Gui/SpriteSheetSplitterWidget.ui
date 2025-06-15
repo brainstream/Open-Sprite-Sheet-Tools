@@ -30,6 +30,12 @@
          <height>600</height>
         </size>
        </property>
+       <property name="dragMode">
+        <enum>QGraphicsView::DragMode::RubberBandDrag</enum>
+       </property>
+       <property name="transformationAnchor">
+        <enum>QGraphicsView::ViewportAnchor::AnchorUnderMouse</enum>
+       </property>
       </widget>
      </item>
      <item alignment="Qt::AlignmentFlag::AlignRight">
