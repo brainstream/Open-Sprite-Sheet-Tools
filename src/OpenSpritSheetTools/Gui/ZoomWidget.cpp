@@ -38,12 +38,20 @@ QValidator::State ComboBoxValidator::validate(QString & _input, int & _position)
 {
     if(_input.length())
     {
+        if(_input.endsWith('%'))
+        {
+            if(_position == _input.length())
+                _position = _input.length() - 1;
+            return Acceptable;
+        }
+        quint32 value = 0;
         foreach(QChar symbol, _input)
         {
-            if(symbol < '0' || symbol > '9')
-                return Acceptable;
+            if(symbol == '%') continue;
+            if(symbol.isDigit()) value = value * 10 + symbol.digitValue();
+            else return Acceptable;
         }
-        _input += "%";
+        if(value) _input = QString("%1%").arg(value);
     }
     return Acceptable;
 }
